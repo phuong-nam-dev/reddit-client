@@ -5,7 +5,8 @@ import React, { Suspense } from "react";
 const DetailReddit = async ({ subreddit }: { subreddit: string }) => {
   const data = await getDetailReddit(subreddit);
 
-  console.log(data.data.children);
+  if (!data?.data?.children?.length)
+    return <div>Not found content for subreddit</div>;
 
   return (
     <div className="size-full flex items-center flex-col py-4 gap-2">

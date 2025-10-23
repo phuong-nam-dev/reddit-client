@@ -25,7 +25,7 @@ export default function Home() {
             <DialogTitle>Enter the name of subreddit</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col gap-2">
-            <FormAddSubreddit />
+            <FormAddSubreddit onClose={() => setIsOpen(false)} />
           </div>
         </DialogContent>
       </Dialog>

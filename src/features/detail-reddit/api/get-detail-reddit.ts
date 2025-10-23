@@ -31,6 +31,9 @@ export type DetailRedditResponse = {
     }[];
   };
   kind: string;
+  error?: number;
+  message?: string;
+  reason?: string;
 };
 
 export default async function getDetailReddit(subreddit: string) {

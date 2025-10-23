@@ -9,16 +9,27 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import { submitFormAddSubreddit } from "../action";
 
 const formSchema = z.object({
   subreddit: z.string().min(2, "subreddit must be at least 2 characters."),
 });
 
-const FormAddSubreddit = () => {
+type FormAddSubredditProps = {
+  onClose?: () => void;
+};
+
+const FormAddSubreddit = (props: FormAddSubredditProps) => {
+  const router = useRouter();
+
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -27,7 +38,19 @@ const FormAddSubreddit = () => {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log("values", values);
+    const formData = new FormData();
+
+    formData.set("subreddit", values.subreddit);
+
+    startTransition(async () => {
+      try {
+        const data = await submitFormAddSubreddit(formData);
+
+        if (data.success) router.push(`/r/${values.subreddit}`);
+      } catch {
+        console.log("error");
+      }
+    });
   };
 
   return (
@@ -39,13 +62,22 @@ const FormAddSubreddit = () => {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input className="h-10" {...field} />
+                <Input className="h-10" disabled={isPending} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Add Subreddit</Button>
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {isPending ? (
+            <div className="flex gap-1 items-center justify-center">
+              <Spinner className="size-6" />
+              <div>Creating...</div>
+            </div>
+          ) : (
+            "Add Subreddit"
+          )}
+        </Button>
       </form>
     </Form>
   );
